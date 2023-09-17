@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  transpilePackages: ["@pantheon-systems/drupal-kit"],
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
