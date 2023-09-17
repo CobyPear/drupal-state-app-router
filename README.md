@@ -4,7 +4,9 @@ Trying to figure some things out with the new app router an setting headers. Thi
 
 A quick proof of concept to put the suggestion of "moving the logic for setting headers dynamically based on the route" to the test.
 
-Uses a modified version of `@gdwc/drupal_state` which exposes the headers on `getObject` and `getObjectByPath`. I'll add a link to that code when it's public.
+Uses a modified version of `@gdwc/drupal_state` which exposes the headers on `getObject` and `getObjectByPath`. WIP branch is here: https://git.drupalcode.org/project/drupal_state/-/tree/feat/expose-headers
+
+Given the effort in the Drupal JavaScript API Client, I'm not sure this will be added upstream to DrupalState, but this should be easier with the new API Client soon enough!
 
 Right now I am passing all of the headers from Drupal on to the browser so the page can be purged from the CDN and the browser will know, allowing content edits in Drupal to show up immediately thanks to SSR and the cache invalidation on the CDN.
 
