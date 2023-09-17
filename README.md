@@ -1,34 +1,26 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Trying to figure some things out with the new app router an setting headers. This is a work in progress and is not up to my usual coding standards 😜
 
-## Getting Started
+## What is this
 
-First, run the development server:
+A quick proof of concept to put the suggestion of "moving the logic for setting headers dynamically based on the route" to the test.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Uses a modified version of `@gdwc/drupal_state` which exposes the headers on `getObject` and `getObjectByPath`. I'll add a link to that code when it's public.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Right now I am passing all of the headers from Drupal on to the browser so the page can be purged from the CDN and the browser will know, allowing content edits in Drupal to show up immediately thanks to SSR and the cache invalidation on the CDN.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Why?
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+See:
 
-## Learn More
+- https://github.com/vercel/next.js/issues/50914
+- https://github.com/vercel/next.js/discussions/54871#discussion-5581212
+- https://github.com/vercel/next.js/discussions/52491
+- https://github.com/vercel/next.js/discussions/51460
 
-To learn more about Next.js, take a look at the following resources:
+And there are probably a few more related issues/discussions I am missing.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+My favorite on the subject so far: https://pilcrow.vercel.app/blog/nextjs-why?s
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Does it work?
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+I am able to get the Surrogate-Keys passed to the browser but as I expected it's only for the first request and subsequent responses are from the cache which doesn't have the headers. I thought dynamic routes opted out of the cache by default but I'm not understanding that jargon yet. I can probably do something else to opt out of the cache and get the header on every refresh as I expect.

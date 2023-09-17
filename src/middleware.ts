@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { setSurrogateKeyHeader } from "@pantheon-systems/drupal-kit";
+import { ServerResponse } from "http";
 // import { ServerResponse } from "http";
 
 export const config = {
@@ -32,7 +33,9 @@ export async function middleware(request: NextRequest) {
         console.log("headers", headers);
         console.log(headers?.get("Surrogate-Key"));
         const h = headers
-          ? setSurrogateKeyHeader(headers.get("Surrogate-Key"), headers)
+          ? setSurrogateKeyHeader(headers.get("Surrogate-Key"), {
+              headers,
+            } as unknown as ServerResponse)
           : null;
         console.log("setSurrogateKeyHeaders;", h);
 
