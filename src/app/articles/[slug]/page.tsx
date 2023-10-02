@@ -1,13 +1,34 @@
+import { store } from "@/lib/store";
+import { headers } from "next/headers";
+import Link from "next/link";
+
 const getData = async (slug: string) => {
-  console.log(slug)
-  return await fetch(`http://localhost:3000/api/articles/${slug}`);
+  try {
+    const result = (await store.getObjectByPath({
+      objectName: "node--article",
+      params: "include=field_media_image",
+      path: `/articles/${slug}`,
+      refresh: true,
+    })) as { data: any; headers: Headers };
+    if (result?.data) return result.data;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export default async function Page({ params }: { params: { slug: string } }) {
-  // console.log(await getData(params.slug));
+  const data = await getData(params.slug);
   return (
-    <>
-      <h2>{params.slug}</h2>
-    </>
+    <div>
+      surrogate-key headers: {headers().get("surrogate-key")}
+      <br />
+      <br />
+      <Link href="/articles">Back to all articles</Link>
+      <br />
+      <details>
+        <summary>{params.slug} JSON</summary>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </details>
+    </div>
   );
 }

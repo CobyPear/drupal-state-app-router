@@ -1,4 +1,4 @@
-Trying to figure some things out with the new app router an setting headers. This is a work in progress and is not up to my usual coding standards 😜
+Trying to figure some things out with the new app router an setting headers. This is a work in progress and is kinda messy, please bear with me 🐻
 
 ## What is this
 
@@ -7,6 +7,10 @@ A quick proof of concept to put the suggestion of "moving the logic for setting 
 Uses a modified version of `@gdwc/drupal_state` which exposes the headers on `getObject` and `getObjectByPath`. WIP branch is here: https://git.drupalcode.org/project/drupal_state/-/tree/feat/expose-headers
 
 Given the effort in the Drupal JavaScript API Client, I'm not sure this will be added upstream to DrupalState, but this should be easier with the new API Client soon enough!
+
+I am also using a modified version of `@pantheon-systems/cms-kit`. Some of these changes may be proposed to the upstream version. The changes are to `setSurrogateKeyHeader` and only changes the `res` param to be type of `Response` to work with the `NextResponse` type.
+
+For ease of reproducibility, I am including those packages as tarballs in the repo.
 
 Right now I am passing all of the headers from Drupal on to the browser so the page can be purged from the CDN and the browser will know, allowing content edits in Drupal to show up immediately thanks to SSR and the cache invalidation on the CDN.
 
@@ -25,4 +29,11 @@ My favorite on the subject so far: https://pilcrow.vercel.app/blog/nextjs-why?s
 
 ## Does it work?
 
-I am able to get the Surrogate-Keys passed to the browser but as I expected it's only for the first request and subsequent responses are from the cache which doesn't have the headers. I thought dynamic routes opted out of the cache by default but I'm not understanding that jargon yet. I can probably do something else to opt out of the cache and get the header on every refresh as I expect.
+Yes, there is some duplicate code and there is probably a better way (I thought I could fetch data in middleware and pass that data to the next request? Apparently not.)
+
+1. The data is fetched in middleware based on the page (`/articles` or `/articles/[article slug]`)
+2. Middleware rewrites the response to the requested [Page](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts)
+3. The Page is a server component that fetches the data using the same fetch in middleware
+
+
+In order for content updates to show instantly like they did with `getServerSideProps`, `refresh: true` must be set on the `getObject` call in the Page component meaning the server is hit twice and the built in DrupalState store is not utilized.

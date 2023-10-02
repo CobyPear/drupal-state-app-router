@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@gdwc/drupal-state": "file:./gdwc-drupal-state-4.2.3.tgz",
+    "@pantheon-systems/cms-kit": "file:./pantheon-systems-cms-kit-0.3.3-canary-test.0.tgz",
     "@pantheon-systems/drupal-kit": "^4.6.2",
     "@types/node": "20.6.2",
     "@types/react": "18.2.21",

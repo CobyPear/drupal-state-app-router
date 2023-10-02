@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
-import { setSurrogateKeyHeader } from "@pantheon-systems/drupal-kit";
-import { ServerResponse } from "http";
-// import { ServerResponse } from "http";
+import { setSurrogateKeyHeader2 } from "@pantheon-systems/cms-kit/lib/setSurrogateKeyHeader2.cjs";
+import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
   matcher: [
@@ -19,29 +17,34 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const node = request.nextUrl.pathname;
-  console.log("middleware path: ", node);
   if (node.endsWith("/articles")) {
     try {
       const result = await store.getObject({
         objectName: "node--article",
         params: "include=field_media_image",
+        refresh: true
       });
-      console.log("result.headers?", result?.headers);
-      if (result) {
-        const headers = result?.headers;
-        // const articles = result;
-        console.log("headers", headers);
-        console.log(headers?.get("Surrogate-Key"));
-        const h = headers
-          ? setSurrogateKeyHeader(headers.get("Surrogate-Key"), {
-              headers,
-            } as unknown as ServerResponse)
-          : null;
-        console.log("setSurrogateKeyHeaders;", h);
+      if (result && result.headers) {
+        console.log(
+          "headers from getObject: ",
+          result.headers?.get("surrogate-key")
+        );
 
-        return new NextResponse(JSON.stringify(result.data), {
-          headers: result.headers,
-        });
+        const response = new NextResponse(JSON.stringify(result.data));
+
+        setSurrogateKeyHeader2(result.headers?.get("Surrogate-Key"), response);
+
+        console.log(
+          "response headers after set: ",
+          response?.headers.get("Surrogate-Key")
+        );
+
+        response.headers.set("cache-control", "public, s-maxage=600");
+
+        return NextResponse.rewrite(
+          new URL("/articles", request.url),
+          response
+        );
       }
     } catch (error) {
       console.error(error);
@@ -54,25 +57,30 @@ export async function middleware(request: NextRequest) {
         objectName: "node--article",
         params: "include=field_media_image",
         path: `/articles/${slug}`,
+        refresh: true
       })) as { data: any; headers: Headers };
-      // console.log("result..", result);
-      console.log("result.headers?", result?.headers);
 
-      if (result.data) {
-        // const headers = result?.headers;
-        // if (headers) {
-        //   console.log("headers", headers);
-        //   console.log(headers?.get("Surrogate-Key"));
-        //   const h = setSurrogateKeyHeader(
-        //     headers.get("Surrogate-Key"),
-        //     result as unknown as ServerResponse
-        //   );
-        //   console.log("setSurrogateKeyHeaders;", h);
-        // }
-        // console.log(articles)
-        return new NextResponse(JSON.stringify(result.data), {
-          headers: result.headers,
-        });
+      if (result && result.headers) {
+        console.log(
+          "headers from getObject: ",
+          result.headers?.get("surrogate-key")
+        );
+
+        const response = new NextResponse(JSON.stringify(result.data));
+
+        setSurrogateKeyHeader2(result.headers?.get("Surrogate-Key"), response);
+
+        response.headers.set("cache-control", "public, s-maxage=600");
+
+        console.log(
+          "response headers after set: ",
+          response?.headers.get("Surrogate-Key")
+        );
+
+        return NextResponse.rewrite(
+          new URL(`/articles/${slug}`, request.url),
+          response
+        );
       }
     } catch (error) {
       console.error(error);
